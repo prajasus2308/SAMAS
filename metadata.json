@@ -1,0 +1,6 @@
+{
+  "name": "Sanskrit Samas Slot Machine (संस्कृत समास मशीन)",
+  "description": "A vintage luxury arcade educational slot machine that teaches Sanskrit Samas compounds where every spin is a win.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

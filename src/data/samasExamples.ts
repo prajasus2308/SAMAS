@@ -1,0 +1,1415 @@
+export type SamasCategoryId =
+  | 'avyayibhava'
+  | 'tatpurusha'
+  | 'karmadharaya'
+  | 'dvigu'
+  | 'dvandva'
+  | 'bahuvrihi';
+
+export type ResultLevel = 'common' | 'rare' | 'master';
+
+export interface SamasExample {
+  id: string;
+  isCoreExhibition: boolean;
+  resultLevel?: ResultLevel;
+  purvapada: string;
+  purvapadaTranslit: string;
+  purvapadaMeaning: string;
+  uttarapada: string;
+  uttarapadaTranslit: string;
+  uttarapadaMeaning: string;
+  samastapada: string;
+  samastapadaTranslit: string;
+  categoryId: SamasCategoryId;
+  samasTypeSanskrit: string;
+  samasSubtypeSanskrit?: string;
+  samasTypeEnglish: string;
+  vigraha: string;
+  vigrahaTranslit: string;
+  hindiMeaning: string;
+  englishMeaning: string;
+  grammaticalExplanationHindi: string;
+  grammaticalExplanationEnglish: string;
+}
+
+export function getResultLevel(example: SamasExample): ResultLevel {
+  if (example.resultLevel) return example.resultLevel;
+  // All Bahuvrihi compounds or monumental classics are Master level
+  if (
+    example.categoryId === 'bahuvrihi' ||
+    [
+      'सप्तर्षयः',
+      'पञ्चतन्त्रम्',
+      'अष्टाध्यायी',
+      'नवरत्नम्',
+      'त्रिलोचनः',
+      'लम्बोधरः',
+      'चक्रपाणिः',
+      'दशाननः',
+      'नीलकण्ठः',
+      'गजाननः',
+    ].includes(example.samastapada)
+  ) {
+    return 'master';
+  }
+  // Avyayibhava, Dvigu & metaphoric / special cases are Rare level
+  if (
+    example.categoryId === 'avyayibhava' ||
+    example.categoryId === 'dvigu' ||
+    [
+      'चरणकमलम्',
+      'मुखचन्द्रः',
+      'विद्याधनम्',
+      'नीलोत्पलम्',
+      'पुरुषसिंहः',
+      'युद्धनिपुणः',
+      'स्वर्गप्राप्तः',
+      'हस्तलिखितम्',
+      'दम्पती',
+      'घनश्यामः',
+    ].includes(example.samastapada)
+  ) {
+    return 'rare';
+  }
+  return 'common';
+}
+
+export interface SamasCategoryInfo {
+  id: SamasCategoryId;
+  sanskritName: string;
+  transliteration: string;
+  englishName: string;
+  pradhanaPada: string;
+  pradhanaPadaEnglish: string;
+  formula: string;
+  hindiExplanation: string;
+  englishExplanation: string;
+  keyIdentificationRule: string;
+  canonicalExample: {
+    purvapada: string;
+    uttarapada: string;
+    samastapada: string;
+    vigraha: string;
+    meaning: string;
+  };
+}
+
+export const SAMAS_CATEGORIES: SamasCategoryInfo[] = [
+  {
+    id: 'avyayibhava',
+    sanskritName: 'अव्ययीभाव समास',
+    transliteration: 'Avyayībhāva Samāsa',
+    englishName: 'Adverbial Compound',
+    pradhanaPada: 'पूर्वपद प्रधान (First Word Dominant)',
+    pradhanaPadaEnglish: 'First term (Indeclinable / Avyaya) is dominant',
+    formula: 'अव्यय (पूर्वपद) + संज्ञा (उत्तरपद) → अव्यय समस्त पद',
+    hindiExplanation:
+      'जिस समास में पूर्वपद (पहला शब्द) अव्यय होता है तथा वही प्रधान होता है, और समास होने के बाद सम्पूर्ण समस्त पद भी अव्यय (अपरिवर्तनीय क्रियाविशेषण) बन जाता है, उसे अव्ययीभाव समास कहते हैं।',
+    englishExplanation:
+      'In Avyayībhāva Samāsa, the first word (Pūrvapada) is an indeclinable prefix or particle (Avyaya) and holds primary grammatical weight. Once compounded, the entire resulting word functions as an indeclinable adverb.',
+    keyIdentificationRule:
+      'Starts with prefixes/indeclinables like यथा (yathā), प्रति (prati), उप (upa), अनु (anu), निर् (nir), आ (ā).',
+    canonicalExample: {
+      purvapada: 'यथा',
+      uttarapada: 'शक्ति',
+      samastapada: 'यथाशक्ति',
+      vigraha: 'शक्तिम् अनतिक्रम्य',
+      meaning: 'According to ability / शक्ति के अनुसार',
+    },
+  },
+  {
+    id: 'tatpurusha',
+    sanskritName: 'तत्पुरुष समास',
+    transliteration: 'Tatpuruṣa Samāsa',
+    englishName: 'Determinative Compound',
+    pradhanaPada: 'उत्तरपद प्रधान (Second Word Dominant)',
+    pradhanaPadaEnglish: 'Second term is grammatically dominant',
+    formula: 'विभक्तियुक्त पूर्वपद + प्रधान उत्तरपद → विभक्ति-लोप समस्त पद',
+    hindiExplanation:
+      'जिस समास में उत्तरपद (दूसरा शब्द) अर्थ की दृष्टि से प्रधान होता है और समास करते समय पूर्वपद की कारक विभक्ति (द्वितीया से सप्तमी तक) का लोप हो जाता है, उसे तत्पुरुष समास कहते हैं।',
+    englishExplanation:
+      'In Tatpuruṣa Samāsa, the second word (Uttarapada) is the primary head noun, while the first word modifies it through a case relationship (accusative to locative). During compounding, the case ending (Vibhakti) of the first word is dropped.',
+    keyIdentificationRule:
+      'When expanded into its Vigraha, a case relation (को, से, के लिए, का/के/की, में/पर) appears between the first and second word.',
+    canonicalExample: {
+      purvapada: 'राज्ञः',
+      uttarapada: 'पुरुषः',
+      samastapada: 'राजपुरुषः',
+      vigraha: 'राज्ञः पुरुषः',
+      meaning: "The king's person (royal official) / राजा का पुरुष",
+    },
+  },
+  {
+    id: 'karmadharaya',
+    sanskritName: 'कर्मधारय समास',
+    transliteration: 'Karmadhāraya Samāsa',
+    englishName: 'Appositional / Descriptive Compound',
+    pradhanaPada: 'उत्तरपद प्रधान (विशेषण-विशेष्य भाव)',
+    pradhanaPadaEnglish: 'Second term is dominant (Qualifier–Qualified relation)',
+    formula: 'विशेषण / उपमान (पूर्वपद) + विशेष्य / उपमेय (उत्तरपद) → समान विभक्ति समस्त पद',
+    hindiExplanation:
+      'जिस समास में पूर्वपद और उत्तरपद के मध्य विशेषण-विशेष्य (Adjective-Noun) अथवा उपमान-उपमेय (Comparison) का सम्बन्ध होता है तथा दोनों पदों में समान विभक्ति होती है, उसे कर्मधारय समास कहते हैं।',
+    englishExplanation:
+      'In Karmadhāraya Samāsa, both constituents refer to the same entity and share the same grammatical case in the Vigraha. The first word acts as an adjective (Viśeṣaṇa) or standard of comparison (Upamāna) describing the second noun (Viśeṣya).',
+    keyIdentificationRule:
+      'First word describes quality, color, greatness, or simile of the second word (e.g., नीलम् कमलम् = नीला कमल).',
+    canonicalExample: {
+      purvapada: 'नीलम्',
+      uttarapada: 'कमलम्',
+      samastapada: 'नीलकमलम्',
+      vigraha: 'नीलं कमलम्',
+      meaning: 'A blue lotus / नीला कमल',
+    },
+  },
+  {
+    id: 'dvigu',
+    sanskritName: 'द्विगु समास',
+    transliteration: 'Dvigu Samāsa',
+    englishName: 'Numeral / Collective Compound',
+    pradhanaPada: 'उत्तरपद प्रधान (संख्या-पूर्वपद समाहार भाव)',
+    pradhanaPadaEnglish: 'First constituent is a numeral specifying a collective group',
+    formula: 'संख्यावाची विशेषण (पूर्वपद) + संज्ञा (उत्तरपद) → समाहार समस्त पद',
+    hindiExplanation:
+      'जिस समास में पूर्वपद (पहला शब्द) संख्यावाचक (संख्या बताने वाला) विशेषण होता है तथा समस्त पद किसी समूह (समाहार) का बोध कराता है, उसे द्विगु समास कहते हैं।',
+    englishExplanation:
+      'In Dvigu Samāsa, the first word is a numeral adjective that modifies the noun to express a collective set or aggregate (Samāhāra). The resulting compound is typically neuter singular or masculine plural.',
+    keyIdentificationRule:
+      'The first word is a number (त्रि, नव, पञ्च, सप्त, etc.) and the Vigraha ends with "समाहारः" (collection/group).',
+    canonicalExample: {
+      purvapada: 'त्रि',
+      uttarapada: 'भुवनम्',
+      samastapada: 'त्रिभुवनम्',
+      vigraha: 'त्रयाणां भुवनानां समाहारः',
+      meaning: 'The collection of the three worlds / तीनों लोकों का समूह',
+    },
+  },
+  {
+    id: 'dvandva',
+    sanskritName: 'द्वन्द्व समास',
+    transliteration: 'Dvandva Samāsa',
+    englishName: 'Copulative / Coordinative Compound',
+    pradhanaPada: 'उभयपद प्रधान (Both Words Equally Dominant)',
+    pradhanaPadaEnglish: 'Both first and second terms are equally dominant',
+    formula: 'संज्ञा १ (पूर्वपद) + च + संज्ञा २ (उत्तरपद) → द्विवचन / बहुवचन समस्त पद',
+    hindiExplanation:
+      'जिस समास में पूर्वपद और उत्तरपद दोनों ही समान रूप से प्रधान होते हैं और विग्रह करने पर दोनों पदों के बीच "च" (और / and) अव्यय का प्रयोग होता है, उसे द्वन्द्व समास कहते हैं।',
+    englishExplanation:
+      'In Dvandva Samāsa, both the first and second words have equal grammatical importance. When expanded in the Vigraha, the conjunction "च" (and) links the nouns, and the compound takes dual or plural inflection.',
+    keyIdentificationRule:
+      'Pairs of complementary nouns connected by "च" (and) in the Vigraha, typically ending in dual (-औ / -ए).',
+    canonicalExample: {
+      purvapada: 'माता',
+      uttarapada: 'पिता',
+      samastapada: 'मातापितरौ',
+      vigraha: 'माता च पिता च',
+      meaning: 'Mother and father (Parents) / माता और पिता',
+    },
+  },
+  {
+    id: 'bahuvrihi',
+    sanskritName: 'बहुव्रीहि समास',
+    transliteration: 'Bahuvrīhi Samāsa',
+    englishName: 'Exocentric / Possessive Compound',
+    pradhanaPada: 'अन्यपद प्रधान (External Third Referent Dominant)',
+    pradhanaPadaEnglish: 'Neither internal term; denotes an external third person/object',
+    formula: 'पूर्वपद + उत्तरपद → यस्य सः (तीसरे विशेष अर्थ का बोधक)',
+    hindiExplanation:
+      'जिस समास में न तो पूर्वपद प्रधान होता है और न ही उत्तरपद, बल्कि दोनों पद मिलकर किसी तीसरे बाहरी व्यक्ति या वस्तु (अन्यपद) की विशेषता बताते हैं, उसे बहुव्रीहि समास कहते हैं।',
+    englishExplanation:
+      'In Bahuvrīhi Samāsa, neither the first nor the second word is primary. Instead, the entire compound acts as a possessive descriptor pointing to an external third referent ("one whose X is Y", indicated by "यस्य सः" in the Vigraha).',
+    keyIdentificationRule:
+      'Vigraha uses relative pronouns like "यस्य सः" (whose is he) or "यस्याः सा" and refers to a specific deity or title.',
+    canonicalExample: {
+      purvapada: 'पीतम्',
+      uttarapada: 'अम्बरम्',
+      samastapada: 'पीताम्बरः',
+      vigraha: 'पीतम् अम्बरं यस्य सः',
+      meaning: 'He whose garments are yellow (Lord Vishnu / Krishna)',
+    },
+  },
+];
+
+export const INITIAL_SAMAS_EXAMPLES: SamasExample[] = [
+  // ============================================================================
+  // 5 CORE VERIFIED EXHIBITION EXAMPLES
+  // ============================================================================
+  {
+    id: 'core-1-rajapurusha',
+    isCoreExhibition: true,
+    purvapada: 'राज्ञः',
+    purvapadaTranslit: 'rājñaḥ',
+    purvapadaMeaning: 'Of the king (राजा का)',
+    uttarapada: 'पुरुषः',
+    uttarapadaTranslit: 'puruṣaḥ',
+    uttarapadaMeaning: 'Person / Official (पुरुष / सेवक)',
+    samastapada: 'राजपुरुषः',
+    samastapadaTranslit: 'rājapuruṣaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'षष्ठी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Genitive Determinative)',
+    vigraha: 'राज्ञः पुरुषः',
+    vigrahaTranslit: 'rājñaḥ puruṣaḥ',
+    hindiMeaning: 'राजा का पुरुष (राजा से सम्बन्धित पुरुष या राज-अधिकारी)',
+    englishMeaning: 'A person associated with the king (Royal official / King’s attendant).',
+    grammaticalExplanationHindi:
+      'यहाँ पूर्वपद "राज्ञः" (राजन् शब्द, षष्ठी विभक्ति एकवचन) का लोप होकर मूल प्रातिपदिक "राज" तथा उत्तरपद "पुरुषः" के मेल से "राजपुरुषः" समस्त पद बना है। उत्तरपद "पुरुषः" प्रधान है।',
+    grammaticalExplanationEnglish:
+      'The genitive case inflection (Ṣaṣṭhī Vibhakti) of "rājñaḥ" (of the king) is dropped to the stem "rāja-", compounding with the head noun "puruṣaḥ" to form "rājapuruṣaḥ".',
+  },
+  {
+    id: 'core-2-nilakamalam',
+    isCoreExhibition: true,
+    purvapada: 'नीलम्',
+    purvapadaTranslit: 'nīlam',
+    purvapadaMeaning: 'Blue (नीला - विशेषण)',
+    uttarapada: 'कमलम्',
+    uttarapadaTranslit: 'kamalam',
+    uttarapadaMeaning: 'Lotus (कमल - विशेष्य)',
+    samastapada: 'नीलकमलम्',
+    samastapadaTranslit: 'nīlakamalam',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'नीलं कमलम्',
+    vigrahaTranslit: 'nīlaṃ kamalam',
+    hindiMeaning: 'नीला कमल (नीले रंग वाला कमल का पुष्प)',
+    englishMeaning: 'A blue lotus (where the adjective "blue" directly qualifies the noun "lotus").',
+    grammaticalExplanationHindi:
+      'यहाँ पूर्वपद "नीलम्" विशेषण है और उत्तरपद "कमलम्" विशेष्य है। दोनों पदों में समान विभक्ति (प्रथमा एकवचन) होने से यह कर्मधारय समास है।',
+    grammaticalExplanationEnglish:
+      'The first word "nīlam" (blue) is an adjective (Viśeṣaṇa) qualifying the second word "kamalam" (lotus, Viśeṣya). Both share the same grammatical case in apposition.',
+  },
+  {
+    id: 'core-3-matapitarau',
+    isCoreExhibition: true,
+    purvapada: 'माता',
+    purvapadaTranslit: 'mātā',
+    purvapadaMeaning: 'Mother (माता)',
+    uttarapada: 'पिता',
+    uttarapadaTranslit: 'pitā',
+    uttarapadaMeaning: 'Father (पिता)',
+    samastapada: 'मातापितरौ',
+    samastapadaTranslit: 'mātāpitarau',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'माता च पिता च',
+    vigrahaTranslit: 'mātā ca pitā ca',
+    hindiMeaning: 'माता और पिता (अभिभावक)',
+    englishMeaning: 'Mother and father (Parents; both nouns carry equal grammatical weight).',
+    grammaticalExplanationHindi:
+      'यहाँ "माता" और "पिता" दोनों पद समान रूप से प्रधान हैं। विग्रह में "च" (और) से जुड़े दोनों शब्दों का मिलन होकर द्विवचन में "मातापितरौ" (अथवा एकशेष में "पितरौ") रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'Both "mātā" (mother) and "pitā" (father) are equally dominant coordinate nouns joined by "ca" (and) in the Vigraha, taking the dual suffix "-au" in "mātāpitarau".',
+  },
+  {
+    id: 'core-4-pitambarah',
+    isCoreExhibition: true,
+    purvapada: 'पीतम्',
+    purvapadaTranslit: 'pītam',
+    purvapadaMeaning: 'Yellow (पीला)',
+    uttarapada: 'अम्बरम्',
+    uttarapadaTranslit: 'ambaram',
+    uttarapadaMeaning: 'Garment / Cloth (वस्त्र)',
+    samastapada: 'पीताम्बरः',
+    samastapadaTranslit: 'pītāmbaraḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'पीतम् अम्बरं यस्य सः',
+    vigrahaTranslit: 'pītam ambaraṃ yasya saḥ',
+    hindiMeaning: 'पीला है वस्त्र जिसका वह (भगवान् श्रीविष्णु / श्रीकृष्ण)',
+    englishMeaning: 'He whose garments are yellow (an epithet referring to Lord Vishnu / Krishna).',
+    grammaticalExplanationHindi:
+      'यहाँ "पीतम्" (पीला) और "अम्बरम्" (वस्त्र) मिलकर केवल पीले कपड़े को नहीं, अपितु तीसरे विशेष पुरुष ("यस्य सः" — श्री विष्णु) को इंगित करते हैं, अतः यह बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'Rather than meaning "a yellow cloth" (neuter pītāmbaram), the masculine ending "-aḥ" in "pītāmbaraḥ" signifies "he whose garments are yellow" (Lord Vishnu).',
+  },
+  {
+    id: 'core-5-yathashakti',
+    isCoreExhibition: true,
+    purvapada: 'यथा',
+    purvapadaTranslit: 'yathā',
+    purvapadaMeaning: 'According to / Without exceeding (अनुसार)',
+    uttarapada: 'शक्ति',
+    uttarapadaTranslit: 'śakti',
+    uttarapadaMeaning: 'Strength / Capacity (सामर्थ्य)',
+    samastapada: 'यथाशक्ति',
+    samastapadaTranslit: 'yathāśakti',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'अनतिक्रम्य-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'शक्तिम् अनतिक्रम्य',
+    vigrahaTranslit: 'śaktim anatikramya',
+    hindiMeaning: 'शक्ति के अनुसार (अपनी शक्ति का अतिक्रमण न करके)',
+    englishMeaning: 'According to one’s capacity or strength (without exceeding one’s ability).',
+    grammaticalExplanationHindi:
+      'यहाँ पूर्वपद "यथा" एक अव्यय है जिसका अर्थ "अनतिक्रम्य" (उल्लंघन न करके / के अनुसार) होता है। पूर्वपद प्रधान होने तथा समस्त पद के अव्यय बन जाने से यह अव्ययीभाव समास है।',
+    grammaticalExplanationEnglish:
+      'The first word "yathā" is an indeclinable (Avyaya) meaning "without overstepping" (śaktim anatikramya). The entire compound "yathāśakti" functions as an unchanging adverb.',
+  },
+
+  // ============================================================================
+  // EXTENDED VERIFIED CLASSICAL EXAMPLES (6 TO 12)
+  // ============================================================================
+  {
+    id: 'ext-6-vidyahinah',
+    isCoreExhibition: false,
+    purvapada: 'विद्यया',
+    purvapadaTranslit: 'vidyayā',
+    purvapadaMeaning: 'By/from knowledge (विद्या से)',
+    uttarapada: 'हीनः',
+    uttarapadaTranslit: 'hīnaḥ',
+    uttarapadaMeaning: 'Devoid of / Lacking (रहित)',
+    samastapada: 'विद्याहीनः',
+    samastapadaTranslit: 'vidyāhīnaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'तृतीया तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Instrumental Determinative)',
+    vigraha: 'विद्यया हीनः',
+    vigrahaTranslit: 'vidyayā hīnaḥ',
+    hindiMeaning: 'विद्या से हीन (ज्ञान से रहित व्यक्ति)',
+    englishMeaning: 'Devoid of knowledge (one who lacks education; instrumental case elided).',
+    grammaticalExplanationHindi:
+      'पूर्वपद "विद्यया" की तृतीया विभक्ति का लोप होकर "विद्याहीनः" समस्त पद बना है, जिसमें उत्तरपद "हीनः" प्रधान है।',
+    grammaticalExplanationEnglish:
+      'The instrumental case ending (-yā) of "vidyayā" is dropped when compounding with "hīnaḥ" (devoid of), forming a Tṛtīyā Tatpuruṣa compound.',
+  },
+  {
+    id: 'ext-7-mahadevah',
+    isCoreExhibition: false,
+    purvapada: 'महान्',
+    purvapadaTranslit: 'mahān',
+    purvapadaMeaning: 'Great (महान्)',
+    uttarapada: 'देवः',
+    uttarapadaTranslit: 'devaḥ',
+    uttarapadaMeaning: 'God / Deity (देव)',
+    samastapada: 'महादेवः',
+    samastapadaTranslit: 'mahādevaḥ',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'महान् च असौ देवः',
+    vigrahaTranslit: 'mahān ca asau devaḥ',
+    hindiMeaning: 'महान् है जो देव (महादेव)',
+    englishMeaning: 'The Great Deity (where the adjective "mahat" transforms to "mahā-" before "devaḥ").',
+    grammaticalExplanationHindi:
+      'यहाँ "महान्" विशेषण है और "देवः" विशेष्य है। कर्मधारय समास में पूर्वपद "महत्" को "महा" आदेश होकर "महादेवः" रूप सिद्ध होता है।',
+    grammaticalExplanationEnglish:
+      'By Paninian grammar rules, the stem "mahat" (great) becomes "mahā-" when qualifying a co-referential head noun like "devaḥ" in Karmadhāraya Samāsa.',
+  },
+  {
+    id: 'ext-8-ramalakshmanau',
+    isCoreExhibition: false,
+    purvapada: 'रामः',
+    purvapadaTranslit: 'rāmaḥ',
+    purvapadaMeaning: 'Rama (राम)',
+    uttarapada: 'लक्ष्मणः',
+    uttarapadaTranslit: 'lakṣmaṇaḥ',
+    uttarapadaMeaning: 'Lakshmana (लक्ष्मण)',
+    samastapada: 'रामलक्ष्मणौ',
+    samastapadaTranslit: 'rāmalakṣmaṇau',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'रामः च लक्ष्मणः च',
+    vigrahaTranslit: 'rāmaḥ ca lakṣmaṇaḥ ca',
+    hindiMeaning: 'राम और लक्ष्मण',
+    englishMeaning: 'Rama and Lakshmana (both brothers hold equal grammatical prominence).',
+    grammaticalExplanationHindi:
+      'यहाँ "रामः" और "लक्ष्मणः" दोनों पद प्रधान हैं तथा दो व्यक्तियों का बोध होने के कारण समस्त पद प्रथमा द्विवचन में "रामलक्ष्मणौ" बनता है।',
+    grammaticalExplanationEnglish:
+      'Because two distinct individuals ("Rama and Lakshmana") are compounded equally, the resulting compound takes the masculine dual inflection "-au".',
+  },
+  {
+    id: 'ext-9-chandrashekharah',
+    isCoreExhibition: false,
+    purvapada: 'चन्द्रः',
+    purvapadaTranslit: 'candraḥ',
+    purvapadaMeaning: 'Moon (चन्द्रमा)',
+    uttarapada: 'शेखरे',
+    uttarapadaTranslit: 'śekhare',
+    uttarapadaMeaning: 'On the crest / head (शिखर/मस्तक पर)',
+    samastapada: 'चन्द्रशेखरः',
+    samastapadaTranslit: 'candraśekharaḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'व्यधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'चन्द्रः शेखरे यस्य सः',
+    vigrahaTranslit: 'candraḥ śekhare yasya saḥ',
+    hindiMeaning: 'चन्द्रमा है शिखर (मस्तक) पर जिसके वह (भगवान् शिव)',
+    englishMeaning: 'He who bears the crescent moon upon his head (an epithet of Lord Shiva).',
+    grammaticalExplanationHindi:
+      'यहाँ पूर्वपद "चन्द्रः" (प्रथमा) तथा उत्तरपद "शेखरे" (सप्तमी) मिलकर किसी अन्य पद (भगवान् शिव) की विशेषता प्रकट करते हैं, अतः यह व्यधिकरण बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'The two words are in different cases in the Vigraha ("candraḥ" nominative, "śekhare" locative) and point to an external third referent, Lord Shiva.',
+  },
+  {
+    id: 'ext-10-pratidinam',
+    isCoreExhibition: false,
+    purvapada: 'प्रति',
+    purvapadaTranslit: 'prati',
+    purvapadaMeaning: 'Every / Each (प्रत्येक - अव्यय)',
+    uttarapada: 'दिनम्',
+    uttarapadaTranslit: 'dinam',
+    uttarapadaMeaning: 'Day (दिन)',
+    samastapada: 'प्रतिदिनम्',
+    samastapadaTranslit: 'pratidinam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'वीप्सा-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'दिनं दिनं प्रति',
+    vigrahaTranslit: 'dinaṃ dinaṃ prati',
+    hindiMeaning: 'प्रत्येक दिन (हर रोज़)',
+    englishMeaning: 'Every single day / Daily (repetition expressed via the indeclinable "prati").',
+    grammaticalExplanationHindi:
+      'वीप्सा (दोहराव — दिनं दिनम्) के अर्थ में "प्रति" अव्यय का पूर्वपद के रूप में प्रयोग होकर नपुंसकलिंग एकवचन अव्यय रूप "प्रतिदिनम्" बना है।',
+    grammaticalExplanationEnglish:
+      'To express repetition (dinaṃ dinam = day after day), the indeclinable prefix "prati" is placed first, creating the adverbial compound "pratidinam".',
+  },
+  {
+    id: 'ext-11-ghanashyamah',
+    isCoreExhibition: false,
+    purvapada: 'घनः',
+    purvapadaTranslit: 'ghanaḥ',
+    purvapadaMeaning: 'Raincloud (मेघ / बादल - उपमान)',
+    uttarapada: 'श्यामः',
+    uttarapadaTranslit: 'śyāmaḥ',
+    uttarapadaMeaning: 'Dark-complexioned (श्याम - उपमेय गुण)',
+    samastapada: 'घनश्यामः',
+    samastapadaTranslit: 'ghanaśyāmaḥ',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'उपमान-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Simile Compound)',
+    vigraha: 'घन इव श्यामः',
+    vigrahaTranslit: 'ghana iva śyāmaḥ',
+    hindiMeaning: 'बादल के समान श्याम (मेघ जैसा साँवला)',
+    englishMeaning: 'Dark like a raincloud (a comparison compound using "iva" in the Vigraha).',
+    grammaticalExplanationHindi:
+      'यहाँ पूर्वपद "घनः" (बादल) उपमान है और "श्यामः" साधारण धर्म है। उपमान-उपमेय संबंध होने से यह उपमान-पूर्वपद कर्मधारय समास है।',
+    grammaticalExplanationEnglish:
+      'Here "ghanaḥ" (cloud) is the standard of comparison (Upamāna) and "śyāmaḥ" (dark) is the compared attribute, joined by "iva" (like) in the Vigraha.',
+  },
+  {
+    id: 'ext-12-dashananah',
+    isCoreExhibition: false,
+    purvapada: 'दश',
+    purvapadaTranslit: 'daśa',
+    purvapadaMeaning: 'Ten (दस)',
+    uttarapada: 'आननानि',
+    uttarapadaTranslit: 'ānanāni',
+    uttarapadaMeaning: 'Faces (मुख)',
+    samastapada: 'दशाननः',
+    samastapadaTranslit: 'daśānanaḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'दश आननानि यस्य सः',
+    vigrahaTranslit: 'daśa ānanāni yasya saḥ',
+    hindiMeaning: 'दस हैं आनन (मुख) जिसके वह (रावण)',
+    englishMeaning: 'He who possesses ten faces (an epithet referring specifically to Ravana).',
+    grammaticalExplanationHindi:
+      'यहाँ "दश" और "आननानि" मिलकर किसी तीसरे विशेष व्यक्ति (लंकापति रावण) का बोध कराते हैं, इसलिए यह बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'Because "daśānanaḥ" is inflected in the masculine singular to denote a specific person ("he who has ten faces" = Ravana), it is a Bahuvrīhi compound.',
+  },
+
+  // ============================================================================
+  // 10 NEW BEGINNER-FRIENDLY VERIFIED EXAMPLES (13 TO 22)
+  // ============================================================================
+  {
+    id: 'ext-13-upakrishnam',
+    isCoreExhibition: false,
+    purvapada: 'उप',
+    purvapadaTranslit: 'upa',
+    purvapadaMeaning: 'Near / Proximity (समीप - अव्यय)',
+    uttarapada: 'कृष्णम्',
+    uttarapadaTranslit: 'kṛṣṇam',
+    uttarapadaMeaning: 'Krishna (कृष्ण)',
+    samastapada: 'उपकृष्णम्',
+    samastapadaTranslit: 'upakṛṣṇam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'समीप-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'कृष्णस्य समीपम्',
+    vigrahaTranslit: 'kṛṣṇasya samīpam',
+    hindiMeaning: 'कृष्ण के समीप (पास)',
+    englishMeaning: 'Near Krishna (the indeclinable prefix "upa-" denotes proximity or closeness).',
+    grammaticalExplanationHindi:
+      'यहाँ "समीपम्" (पास) के अर्थ में पूर्वपद "उप" अव्यय का प्रयोग हुआ है, जिससे सम्पूर्ण पद "उपकृष्णम्" नपुंसकलिंग एकवचन अव्यय बन गया है।',
+    grammaticalExplanationEnglish:
+      'The indeclinable prefix "upa" expresses proximity ("samīpam" = near). Compounded with the stem "kṛṣṇa", it forms the adverbial neuter singular "upakṛṣṇam".',
+  },
+  {
+    id: 'ext-14-anurupam',
+    isCoreExhibition: false,
+    purvapada: 'अनु',
+    purvapadaTranslit: 'anu',
+    purvapadaMeaning: 'Suitable / Worthy (योग्य - अव्यय)',
+    uttarapada: 'रूपम्',
+    uttarapadaTranslit: 'rūpam',
+    uttarapadaMeaning: 'Form / Quality (रूप)',
+    samastapada: 'अनुरूपम्',
+    samastapadaTranslit: 'anurūpam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'योग्यता-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'रूपस्य योग्यम्',
+    vigrahaTranslit: 'rūpasya yogyam',
+    hindiMeaning: 'रूप के योग्य (अनुकूल)',
+    englishMeaning: 'Worthy of or suitable to the form (where "anu-" indicates suitability).',
+    grammaticalExplanationHindi:
+      'योग्यता (अनुकूलता) के अर्थ में पूर्वपद "अनु" अव्यय का "रूपम्" के साथ समास होकर "अनुरूपम्" अव्यय पद निर्मित हुआ है।',
+    grammaticalExplanationEnglish:
+      'In Sanskrit grammar, the prefix "anu" signifies suitability ("yogyam"). Placed before "rūpam", it produces the indeclinable compound "anurūpam".',
+  },
+  {
+    id: 'ext-15-nirmakshikam',
+    isCoreExhibition: false,
+    purvapada: 'निर्',
+    purvapadaTranslit: 'nir',
+    purvapadaMeaning: 'Absence of / Without (अभाव - अव्यय)',
+    uttarapada: 'मक्षिकम्',
+    uttarapadaTranslit: 'makṣikam',
+    uttarapadaMeaning: 'Flies (मक्खियाँ)',
+    samastapada: 'निर्मक्षिकम्',
+    samastapadaTranslit: 'nirmakṣikam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'अभाव-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'मक्षिकाणाम् अभावः',
+    vigrahaTranslit: 'makṣikāṇām abhāvaḥ',
+    hindiMeaning: 'मक्खियों का अभाव (मक्खी-रहित स्थान)',
+    englishMeaning: 'Completely free from flies (the prefix "nir-" denotes total absence).',
+    grammaticalExplanationHindi:
+      'अभाव (कमी या न होना) के अर्थ में "निर्" अव्यय पूर्वपद के रूप में जुड़कर "निर्मक्षिकम्" अव्ययीभाव समास बनाता है।',
+    grammaticalExplanationEnglish:
+      'The indeclinable prefix "nir-" denotes absence ("abhāvaḥ"). Combined with "makṣikā" (fly), it forms "nirmakṣikam", meaning a place devoid of flies.',
+  },
+  {
+    id: 'ext-16-gramagatah',
+    isCoreExhibition: false,
+    purvapada: 'ग्रामम्',
+    purvapadaTranslit: 'grāmam',
+    purvapadaMeaning: 'To the village (गाँव को)',
+    uttarapada: 'गतः',
+    uttarapadaTranslit: 'gataḥ',
+    uttarapadaMeaning: 'Gone (गया हुआ)',
+    samastapada: 'ग्रामगतः',
+    samastapadaTranslit: 'grāmagataḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'द्वितीया तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Accusative Determinative)',
+    vigraha: 'ग्रामं गतः',
+    vigrahaTranslit: 'grāmaṃ gataḥ',
+    hindiMeaning: 'गाँव को गया हुआ',
+    englishMeaning: 'One who has gone to the village (accusative case ending "-am" is dropped).',
+    grammaticalExplanationHindi:
+      'यहाँ पूर्वपद "ग्रामम्" की द्वितीया विभक्ति का लोप होकर उत्तरपद "गतः" के साथ मिलन से "ग्रामगतः" समस्त पद बना है।',
+    grammaticalExplanationEnglish:
+      'Words denoting movement or arrival like "gataḥ" (gone) compound with an accusative noun ("grāmam"), dropping the accusative suffix to form "grāmagataḥ".',
+  },
+  {
+    id: 'ext-17-vrikshapatitah',
+    isCoreExhibition: false,
+    purvapada: 'वृक्षात्',
+    purvapadaTranslit: 'vṛkṣāt',
+    purvapadaMeaning: 'From the tree (वृक्ष से)',
+    uttarapada: 'पतितः',
+    uttarapadaTranslit: 'patitaḥ',
+    uttarapadaMeaning: 'Fallen (गिरा हुआ)',
+    samastapada: 'वृक्षपतितः',
+    samastapadaTranslit: 'vṛkṣapatitaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'पञ्चमी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Ablative Determinative)',
+    vigraha: 'वृक्षात् पतितः',
+    vigrahaTranslit: 'vṛkṣāt patitaḥ',
+    hindiMeaning: 'वृक्ष (पेड़) से गिरा हुआ',
+    englishMeaning: 'Fallen from the tree (ablative case ending "-āt" indicating separation is dropped).',
+    grammaticalExplanationHindi:
+      'अलग होने के अर्थ में प्रयुक्त पूर्वपद "वृक्षात्" की पञ्चमी विभक्ति का लोप होकर "वृक्षपतितः" समस्त पद सिद्ध होता है।',
+    grammaticalExplanationEnglish:
+      'The ablative inflection "-āt" in "vṛkṣāt" (from the tree) expresses separation and is dropped when compounding with "patitaḥ" (fallen).',
+  },
+  {
+    id: 'ext-18-vidyalayah',
+    isCoreExhibition: false,
+    purvapada: 'विद्यायाः',
+    purvapadaTranslit: 'vidyāyāḥ',
+    purvapadaMeaning: 'Of knowledge (विद्या का)',
+    uttarapada: 'आलयः',
+    uttarapadaTranslit: 'ālayaḥ',
+    uttarapadaMeaning: 'Abode / House (घर / स्थान)',
+    samastapada: 'विद्यालयः',
+    samastapadaTranslit: 'vidyālayaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'षष्ठी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Genitive Determinative)',
+    vigraha: 'विद्यायाः आलयः',
+    vigrahaTranslit: 'vidyāyāḥ ālayaḥ',
+    hindiMeaning: 'विद्या का आलय (पाठशाला / स्कूल)',
+    englishMeaning: 'The abode of knowledge / School (genitive ending dropped and joined by vowel sandhi).',
+    grammaticalExplanationHindi:
+      'पूर्वपद "विद्यायाः" की षष्ठी विभक्ति का लोप होकर मूल शब्द "विद्या" और "आलयः" में सवर्ण दीर्घ सन्धि से "विद्यालयः" बनता है।',
+    grammaticalExplanationEnglish:
+      'Dropping the genitive ending of "vidyāyāḥ" leaves the stem "vidyā", which merges with "ālayaḥ" (abode) via long-vowel sandhi to form "vidyālayaḥ".',
+  },
+  {
+    id: 'ext-19-shvetakamalam',
+    isCoreExhibition: false,
+    purvapada: 'श्वेतम्',
+    purvapadaTranslit: 'śvetam',
+    purvapadaMeaning: 'White (सफेद - विशेषण)',
+    uttarapada: 'कमलम्',
+    uttarapadaTranslit: 'kamalam',
+    uttarapadaMeaning: 'Lotus (कमल - विशेष्य)',
+    samastapada: 'श्वेतकमलम्',
+    samastapadaTranslit: 'śvetakamalam',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'श्वेतं कमलम्',
+    vigrahaTranslit: 'śvetaṃ kamalam',
+    hindiMeaning: 'श्वेत (सफेद) कमल',
+    englishMeaning: 'A white lotus (the adjective "śvetam" directly describes the noun "kamalam").',
+    grammaticalExplanationHindi:
+      'पूर्वपद "श्वेतम्" विशेषण है जो उत्तरपद "कमलम्" (विशेष्य) के रंग की विशेषता बता रहा है, अतः यह कर्मधारय समास है।',
+    grammaticalExplanationEnglish:
+      'Both words refer to the same lotus flower in the nominative case, with the first term "śvetam" (white) acting as a qualifying adjective.',
+  },
+  {
+    id: 'ext-20-kamalanayanam',
+    isCoreExhibition: false,
+    purvapada: 'कमलम्',
+    purvapadaTranslit: 'kamalam',
+    purvapadaMeaning: 'Lotus (कमल - उपमान)',
+    uttarapada: 'नयनम्',
+    uttarapadaTranslit: 'nayanam',
+    uttarapadaMeaning: 'Eye (नेत्र - उपमेय)',
+    samastapada: 'कमलनयनम्',
+    samastapadaTranslit: 'kamalanayanam',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'उपमान-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Simile Compound)',
+    vigraha: 'कमलम् इव नयनम्',
+    vigrahaTranslit: 'kamalam iva nayanam',
+    hindiMeaning: 'कमल के समान सुन्दर नयन (नेत्र)',
+    englishMeaning: 'A lotus-like eye (comparing the eye to a blooming lotus flower using "iva").',
+    grammaticalExplanationHindi:
+      'यहाँ नेत्र (उपमेय) की तुलना कमल (उपमान) से की गई है। विग्रह में "इव" (के समान) का प्रयोग होने से यह कर्मधारय समास है।',
+    grammaticalExplanationEnglish:
+      'An Upamāna-Karmadhāraya compound where the eye ("nayanam") is likened to a lotus ("kamalam"), expressed by "kamalam iva nayanam" in the Vigraha.',
+  },
+  {
+    id: 'ext-21-sukhaduhkhe',
+    isCoreExhibition: false,
+    purvapada: 'सुखम्',
+    purvapadaTranslit: 'sukham',
+    purvapadaMeaning: 'Happiness / Joy (सुख)',
+    uttarapada: 'दुःखम्',
+    uttarapadaTranslit: 'duḥkham',
+    uttarapadaMeaning: 'Sorrow / Pain (दुःख)',
+    samastapada: 'सुखदुःखे',
+    samastapadaTranslit: 'sukhaduḥkhe',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'सुखं च दुःखं च',
+    vigrahaTranslit: 'sukhaṃ ca duḥkhaṃ ca',
+    hindiMeaning: 'सुख और दुःख',
+    englishMeaning: 'Happiness and sorrow (paired neuter nouns taking the dual inflection "-e").',
+    grammaticalExplanationHindi:
+      'यहाँ "सुखम्" और "दुःखम्" दोनों पद समान रूप से प्रधान हैं तथा नपुंसकलिंग द्विवचन में "सुखदुःखे" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'Both "sukham" (joy) and "duḥkham" (sorrow) have equal weight. Because there are two neuter nouns, the compound takes the neuter dual ending "-e".',
+  },
+  {
+    id: 'ext-22-nilakanthah',
+    isCoreExhibition: false,
+    purvapada: 'नीलः',
+    purvapadaTranslit: 'nīlaḥ',
+    purvapadaMeaning: 'Blue (नीला)',
+    uttarapada: 'कण्ठः',
+    uttarapadaTranslit: 'kaṇṭhaḥ',
+    uttarapadaMeaning: 'Throat / Neck (कण्ठ / गला)',
+    samastapada: 'नीलकण्ठः',
+    samastapadaTranslit: 'nīlakaṇṭhaḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'नीलः कण्ठः यस्य सः',
+    vigrahaTranslit: 'nīlaḥ kaṇṭhaḥ yasya saḥ',
+    hindiMeaning: 'नीला है कण्ठ जिसका वह (भगवान् शिव)',
+    englishMeaning: 'He whose throat is blue (an epithet referring to Lord Shiva).',
+    grammaticalExplanationHindi:
+      'यहाँ "नीलः" और "कण्ठः" मिलकर किसी सामान्य गले को नहीं, बल्कि तीसरे विशेष अर्थ ("यस्य सः" — भगवान् शिव) को प्रकट करते हैं, अतः यह बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'Instead of merely describing a throat, "nīlakaṇṭhaḥ" functions as a possessive title ("he whose throat is blue"), designating Lord Shiva.',
+  },
+
+  // ============================================================================
+  // 25 NEW VERIFIED EXAMPLES (23 TO 47)
+  // ============================================================================
+  {
+    id: 'ext-23-devalayah',
+    isCoreExhibition: false,
+    purvapada: 'देवस्य',
+    purvapadaTranslit: 'devasya',
+    purvapadaMeaning: 'Of God (देव का)',
+    uttarapada: 'आलयः',
+    uttarapadaTranslit: 'ālayaḥ',
+    uttarapadaMeaning: 'Abode (आलय / मन्दिर)',
+    samastapada: 'देवालयः',
+    samastapadaTranslit: 'devālayaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'षष्ठी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Genitive Determinative)',
+    vigraha: 'देवस्य आलयः',
+    vigrahaTranslit: 'devasya ālayaḥ',
+    hindiMeaning: 'देव का आलय (मन्दिर)।',
+    englishMeaning: 'The abode of God (Temple).',
+    grammaticalExplanationHindi:
+      'पूर्वपद "देवस्य" (षष्ठी विभक्ति एकवचन) की विभक्ति का लोप होकर "देव" तथा "आलयः" के मध्य सवर्ण दीर्घ सन्धि से "देवालयः" समस्त पद बनता है।',
+    grammaticalExplanationEnglish:
+      'The genitive inflection of "devasya" is elided to the stem "deva-", which combines with "ālayaḥ" via long vowel sandhi to form "devālayaḥ".',
+  },
+  {
+    id: 'ext-24-gangajalam',
+    isCoreExhibition: false,
+    purvapada: 'गङ्गायाः',
+    purvapadaTranslit: 'gaṅgāyāḥ',
+    purvapadaMeaning: 'Of Ganga (गंगा का)',
+    uttarapada: 'जलम्',
+    uttarapadaTranslit: 'jalam',
+    uttarapadaMeaning: 'Water (जल)',
+    samastapada: 'गङ्गाजलम्',
+    samastapadaTranslit: 'gaṅgājalam',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'षष्ठी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Genitive Determinative)',
+    vigraha: 'गङ्गायाः जलम्',
+    vigrahaTranslit: 'gaṅgāyāḥ jalam',
+    hindiMeaning: 'गंगा का जल।',
+    englishMeaning: 'The water of the Ganges.',
+    grammaticalExplanationHindi:
+      'पूर्वपद "गङ्गायाः" की षष्ठी विभक्ति का लोप होकर उत्तरपद "जलम्" के साथ समास होने से "गङ्गाजलम्" समस्त पद सिद्ध होता है।',
+    grammaticalExplanationEnglish:
+      'The genitive suffix of "gaṅgāyāḥ" is dropped and compounds with "jalam" (water) to yield "gaṅgājalam".',
+  },
+  {
+    id: 'ext-25-hastalikhitam',
+    isCoreExhibition: false,
+    purvapada: 'हस्तेन',
+    purvapadaTranslit: 'hastena',
+    purvapadaMeaning: 'By hand (हाथ से)',
+    uttarapada: 'लिखितम्',
+    uttarapadaTranslit: 'likhitam',
+    uttarapadaMeaning: 'Written (लिखा हुआ)',
+    samastapada: 'हस्तलिखितम्',
+    samastapadaTranslit: 'hastalikhitam',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'तृतीया तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Instrumental Determinative)',
+    vigraha: 'हस्तेन लिखितम्',
+    vigrahaTranslit: 'hastena likhitam',
+    hindiMeaning: 'हाथ से लिखा हुआ।',
+    englishMeaning: 'Something written by hand (Handwritten).',
+    grammaticalExplanationHindi:
+      'करण कारक (तृतीया विभक्ति) पूर्वपद "हस्तेन" का लोप होकर प्रातिपदिक "हस्त" तथा "लिखितम्" मिलकर "हस्तलिखितम्" समस्त पद बनता है।',
+    grammaticalExplanationEnglish:
+      'The instrumental case ending of "hastena" (by hand) is dropped when compounded with "likhitam" (written), forming Tṛtīyā Tatpuruṣa.',
+  },
+  {
+    id: 'ext-26-gramavasah',
+    isCoreExhibition: false,
+    purvapada: 'ग्रामे',
+    purvapadaTranslit: 'grāme',
+    purvapadaMeaning: 'In the village (गाँव में)',
+    uttarapada: 'वासः',
+    uttarapadaTranslit: 'vāsaḥ',
+    uttarapadaMeaning: 'Dwelling / Residence (निवास)',
+    samastapada: 'ग्रामवासः',
+    samastapadaTranslit: 'grāmavāsaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'सप्तमी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Locative Determinative)',
+    vigraha: 'ग्रामे वासः',
+    vigrahaTranslit: 'grāme vāsaḥ',
+    hindiMeaning: 'गाँव में निवास।',
+    englishMeaning: 'Residence or living in a village.',
+    grammaticalExplanationHindi:
+      'अधिकरण कारक (सप्तमी विभक्ति) "ग्रामे" का विभक्ति-लोप होकर "ग्राम" और "वासः" के मेल से "ग्रामवासः" समस्त पद बनता है।',
+    grammaticalExplanationEnglish:
+      'The locative case inflection of "grāme" (in the village) is dropped, compounding with "vāsaḥ" (residence) to form Saptamī Tatpuruṣa.',
+  },
+  {
+    id: 'ext-27-dhanahinah',
+    isCoreExhibition: false,
+    purvapada: 'धनात्',
+    purvapadaTranslit: 'dhanāt',
+    purvapadaMeaning: 'From wealth (धन से)',
+    uttarapada: 'हीनः',
+    uttarapadaTranslit: 'hīnaḥ',
+    uttarapadaMeaning: 'Devoid of (रहित)',
+    samastapada: 'धनहीनः',
+    samastapadaTranslit: 'dhanahīnaḥ',
+    categoryId: 'tatpurusha',
+    samasTypeSanskrit: 'तत्पुरुष समास',
+    samasSubtypeSanskrit: 'पञ्चमी तत्पुरुष',
+    samasTypeEnglish: 'Tatpuruṣa Samāsa (Ablative Determinative)',
+    vigraha: 'धनात् हीनः',
+    vigrahaTranslit: 'dhanāt hīnaḥ',
+    hindiMeaning: 'धन से रहित व्यक्ति।',
+    englishMeaning: 'A person devoid of wealth.',
+    grammaticalExplanationHindi:
+      'अपादान कारक (पञ्चमी विभक्ति) "धनात्" की विभक्ति का लोप होकर "धनहीनः" समस्त पद सिद्ध होता है।',
+    grammaticalExplanationEnglish:
+      'The ablative case inflection "-āt" denoting separation from wealth is elided to form "dhanahīnaḥ".',
+  },
+  {
+    id: 'ext-28-maharshih',
+    isCoreExhibition: false,
+    purvapada: 'महान्',
+    purvapadaTranslit: 'mahān',
+    purvapadaMeaning: 'Great (महान्)',
+    uttarapada: 'ऋषिः',
+    uttarapadaTranslit: 'ṛṣiḥ',
+    uttarapadaMeaning: 'Sage (ऋषि)',
+    samastapada: 'महर्षिः',
+    samastapadaTranslit: 'maharṣiḥ',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'महान् ऋषिः',
+    vigrahaTranslit: 'mahān ṛṣiḥ',
+    hindiMeaning: 'महान ऋषि।',
+    englishMeaning: 'A great sage.',
+    grammaticalExplanationHindi:
+      'कर्मधारय समास में "महत्" शब्द को "महा" आदेश होता है तथा "महा" + "ऋषिः" में गुण सन्धि (आ + ऋ = अर्) होकर "महर्षिः" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'The adjective "mahat" (great) joins "ṛṣiḥ" (sage) via guṇa sandhi (ā + ṛ = ar) to form "maharṣiḥ".',
+  },
+  {
+    id: 'ext-29-nilotpalam',
+    isCoreExhibition: false,
+    purvapada: 'नीलम्',
+    purvapadaTranslit: 'nīlam',
+    purvapadaMeaning: 'Blue (नीला)',
+    uttarapada: 'उत्पलम्',
+    uttarapadaTranslit: 'utpalam',
+    uttarapadaMeaning: 'Water lily / Lotus (कमल)',
+    samastapada: 'नीलोत्पलम्',
+    samastapadaTranslit: 'nīlotpalam',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'नीलम् उत्पलम्',
+    vigrahaTranslit: 'nīlam utpalam',
+    hindiMeaning: 'नीला कमल अथवा नीलकमल का पुष्प।',
+    englishMeaning: 'A blue water lily.',
+    grammaticalExplanationHindi:
+      'पूर्वपद "नीलम्" विशेषण तथा उत्तरपद "उत्पलम्" विशेष्य है। समास होने पर गुण सन्धि (अ + उ = ओ) से "नीलोत्पलम्" समस्त पद बनता है।',
+    grammaticalExplanationEnglish:
+      'The qualifying adjective "nīlam" (blue) merges with "utpalam" (water lily) via guṇa vowel sandhi (a + u = o) to form "nīlotpalam".',
+  },
+  {
+    id: 'ext-30-krishnamrigah',
+    isCoreExhibition: false,
+    purvapada: 'कृष्णः',
+    purvapadaTranslit: 'kṛṣṇaḥ',
+    purvapadaMeaning: 'Black (काले रंग का)',
+    uttarapada: 'मृगः',
+    uttarapadaTranslit: 'mṛgaḥ',
+    uttarapadaMeaning: 'Deer (मृग / हिरण)',
+    samastapada: 'कृष्णमृगः',
+    samastapadaTranslit: 'kṛṣṇamṛgaḥ',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'कृष्णः मृगः',
+    vigrahaTranslit: 'kṛṣṇaḥ mṛgaḥ',
+    hindiMeaning: 'काले रंग का मृग।',
+    englishMeaning: 'A black deer.',
+    grammaticalExplanationHindi:
+      'यहाँ "कृष्णः" (काला) विशेषण है जो उत्तरपद "मृगः" (हिरण) के रंग का बोध कराता है, अतः यह विशेषण-पूर्वपद कर्मधारय समास है।',
+    grammaticalExplanationEnglish:
+      'The adjective "kṛṣṇaḥ" (black) specifies the color of the deer "mṛgaḥ", sharing the nominative case in Karmadhāraya Samāsa.',
+  },
+  {
+    id: 'ext-31-mahakavyam',
+    isCoreExhibition: false,
+    purvapada: 'महत्',
+    purvapadaTranslit: 'mahat',
+    purvapadaMeaning: 'Great (महान्)',
+    uttarapada: 'काव्यम्',
+    uttarapadaTranslit: 'kāvyam',
+    uttarapadaMeaning: 'Poem / Epic (काव्य)',
+    samastapada: 'महाकाव्यम्',
+    samastapadaTranslit: 'mahākāvyam',
+    categoryId: 'karmadharaya',
+    samasTypeSanskrit: 'कर्मधारय समास',
+    samasSubtypeSanskrit: 'विशेषण-पूर्वपद कर्मधारय',
+    samasTypeEnglish: 'Karmadhāraya Samāsa (Descriptive Compound)',
+    vigraha: 'महत् काव्यम्',
+    vigrahaTranslit: 'mahat kāvyam',
+    hindiMeaning: 'महान काव्य अथवा उत्कृष्ट कविता।',
+    englishMeaning: 'A great epic poem.',
+    grammaticalExplanationHindi:
+      'यहाँ "महत्" विशेषण को समास में "महा" आदेश होकर उत्तरपद "काव्यम्" के साथ मिलकर "महाकाव्यम्" समस्त पद सिद्ध होता है।',
+    grammaticalExplanationEnglish:
+      'The adjective stem "mahat" takes the compounding form "mahā-" before "kāvyam" to create the neuter noun "mahākāvyam".',
+  },
+  {
+    id: 'ext-32-gurushishyau',
+    isCoreExhibition: false,
+    purvapada: 'गुरुः',
+    purvapadaTranslit: 'guruḥ',
+    purvapadaMeaning: 'Teacher (गुरु)',
+    uttarapada: 'शिष्यः',
+    uttarapadaTranslit: 'śiṣyaḥ',
+    uttarapadaMeaning: 'Student (शिष्य)',
+    samastapada: 'गुरुशिष्यौ',
+    samastapadaTranslit: 'guruśiṣyau',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'गुरुः च शिष्यः च',
+    vigrahaTranslit: 'guruḥ ca śiṣyaḥ ca',
+    hindiMeaning: 'गुरु और शिष्य।',
+    englishMeaning: 'Teacher and student.',
+    grammaticalExplanationHindi:
+      'दोनों पदों की समान प्रधानता होने से विग्रह में "च" का प्रयोग हुआ है तथा दो व्यक्तियों के कारण द्विवचन में "गुरुशिष्यौ" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'Both "guruḥ" and "śiṣyaḥ" hold equal coordinate weight; the resulting copulative compound takes the masculine dual ending "-au".',
+  },
+  {
+    id: 'ext-33-labhalabhau',
+    isCoreExhibition: false,
+    purvapada: 'लाभः',
+    purvapadaTranslit: 'lābhaḥ',
+    purvapadaMeaning: 'Gain / Profit (लाभ)',
+    uttarapada: 'अलाभः',
+    uttarapadaTranslit: 'alābhaḥ',
+    uttarapadaMeaning: 'Loss (हानि / अलाभ)',
+    samastapada: 'लाभालाभौ',
+    samastapadaTranslit: 'lābhālābhau',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'लाभः च अलाभः च',
+    vigrahaTranslit: 'lābhaḥ ca alābhaḥ ca',
+    hindiMeaning: 'लाभ और हानि।',
+    englishMeaning: 'Gain and loss.',
+    grammaticalExplanationHindi:
+      'दो विरोधी भावों के समान समन्वय से "लाभ" + "अलाभ" में सवर्ण दीर्घ सन्धि होकर द्विवचन में "लाभालाभौ" समस्त पद बनता है।',
+    grammaticalExplanationEnglish:
+      'The coordinate pair "lābhaḥ" (gain) and "alābhaḥ" (loss) combine via long vowel sandhi into the dual form "lābhālābhau".',
+  },
+  {
+    id: 'ext-34-shitoshne',
+    isCoreExhibition: false,
+    purvapada: 'शीतम्',
+    purvapadaTranslit: 'śītam',
+    purvapadaMeaning: 'Cold (ठंड)',
+    uttarapada: 'उष्णम्',
+    uttarapadaTranslit: 'uṣṇam',
+    uttarapadaMeaning: 'Heat (गर्मी)',
+    samastapada: 'शीतोष्णे',
+    samastapadaTranslit: 'śītoṣṇe',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'शीतं च उष्णं च',
+    vigrahaTranslit: 'śītaṃ ca uṣṇaṃ ca',
+    hindiMeaning: 'ठंड और गर्मी।',
+    englishMeaning: 'Cold and heat.',
+    grammaticalExplanationHindi:
+      'दो नपुंसकलिंग संज्ञाओं का द्वन्द्व समास होने से गुण सन्धि (अ + उ = ओ) तथा नपुंसकलिंग प्रथमा द्विवचन में "शीतोष्णे" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'A copulative compound of two neuter nouns joined by guṇa sandhi (a + u = o), inflected in the neuter dual as "śītoṣṇe".',
+  },
+  {
+    id: 'ext-35-papapunye',
+    isCoreExhibition: false,
+    purvapada: 'पापम्',
+    purvapadaTranslit: 'pāpam',
+    purvapadaMeaning: 'Sin (पाप)',
+    uttarapada: 'पुण्यम्',
+    uttarapadaTranslit: 'puṇyam',
+    uttarapadaMeaning: 'Virtue (पुण्य)',
+    samastapada: 'पापपुण्ये',
+    samastapadaTranslit: 'pāpapuṇye',
+    categoryId: 'dvandva',
+    samasTypeSanskrit: 'द्वन्द्व समास',
+    samasSubtypeSanskrit: 'इतरेतर द्वन्द्व',
+    samasTypeEnglish: 'Dvandva Samāsa (Copulative Compound)',
+    vigraha: 'पापं च पुण्यं च',
+    vigrahaTranslit: 'pāpaṃ ca puṇyaṃ ca',
+    hindiMeaning: 'पाप और पुण्य।',
+    englishMeaning: 'Sin and virtue.',
+    grammaticalExplanationHindi:
+      'दोनों पदों की समान प्रधानता के कारण यह इतरेतर द्वन्द्व समास है, जो नपुंसकलिंग द्विवचन में "पापपुण्ये" रूप ग्रहण करता है।',
+    grammaticalExplanationEnglish:
+      'The paired coordinate nouns "pāpam" (sin) and "puṇyam" (virtue) take the neuter dual inflection "-e" in "pāpapuṇye".',
+  },
+  {
+    id: 'ext-36-caturbhujah',
+    isCoreExhibition: false,
+    purvapada: 'चतुर्',
+    purvapadaTranslit: 'catur',
+    purvapadaMeaning: 'Four (चार)',
+    uttarapada: 'भुजः',
+    uttarapadaTranslit: 'bhujaḥ',
+    uttarapadaMeaning: 'Arms (भुजाएँ)',
+    samastapada: 'चतुर्भुजः',
+    samastapadaTranslit: 'caturbhujaḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'चत्वारः भुजाः यस्य सः',
+    vigrahaTranslit: 'catvāraḥ bhujāḥ yasya saḥ',
+    hindiMeaning: 'चार भुजाएँ हैं जिसकी वह (भगवान् विष्णु)।',
+    englishMeaning: 'The one who has four arms (Lord Vishnu).',
+    grammaticalExplanationHindi:
+      'यहाँ "चतुर्" (चार) और "भुजः" (भुजा) मिलकर किसी तीसरे विशेष अर्थ (भगवान् विष्णु) का बोध कराते हैं, अतः यह बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'The compound denotes an external third entity ("he who has four arms", Lord Vishnu), functioning as an exocentric Bahuvrīhi compound.',
+  },
+  {
+    id: 'ext-37-lambodarah',
+    isCoreExhibition: false,
+    purvapada: 'लम्ब',
+    purvapadaTranslit: 'lamba',
+    purvapadaMeaning: 'Long / Prominent (लम्बा / बड़ा)',
+    uttarapada: 'उदरः',
+    uttarapadaTranslit: 'udaraḥ',
+    uttarapadaMeaning: 'Belly (उदर / पेट)',
+    samastapada: 'लम्बोदरः',
+    samastapadaTranslit: 'lambodaraḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'लम्बम् उदरम् यस्य सः',
+    vigrahaTranslit: 'lambam udaram yasya saḥ',
+    hindiMeaning: 'लम्बा उदर है जिसका वह (भगवान् गणेश)।',
+    englishMeaning: 'The one with a prominent belly (Lord Ganesha).',
+    grammaticalExplanationHindi:
+      'यहाँ "लम्ब" और "उदर" मिलकर तीसरे विशेष देव (भगवान् गणेश) की ओर संकेत करते हैं, अतः यह बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'The compound refers exocentrically to Lord Ganesha ("one whose belly is prominent"), inflected in the masculine singular.',
+  },
+  {
+    id: 'ext-38-kamalakshah',
+    isCoreExhibition: false,
+    purvapada: 'कमल',
+    purvapadaTranslit: 'kamala',
+    purvapadaMeaning: 'Lotus (कमल)',
+    uttarapada: 'अक्षः',
+    uttarapadaTranslit: 'akṣaḥ',
+    uttarapadaMeaning: 'Eyes (नेत्र / आँखें)',
+    samastapada: 'कमलाक्षः',
+    samastapadaTranslit: 'kamalākṣaḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'कमले इव अक्षिणी यस्य सः',
+    vigrahaTranslit: 'kamale iva akṣiṇī yasya saḥ',
+    hindiMeaning: 'कमल के समान नेत्र हैं जिसके वह।',
+    englishMeaning: 'The one whose eyes resemble lotus flowers (Lotus-eyed).',
+    grammaticalExplanationHindi:
+      'यहाँ "कमल" और "अक्ष" मिलकर उस पुरुष विशेष की ओर संकेत करते हैं जिसकी आँखें कमल सदृश हैं, अतः यह बहुव्रीहि समास है।',
+    grammaticalExplanationEnglish:
+      'The compound refers possessively to a person whose eyes resemble lotuses, replacing the stem "akṣi" with "-akṣaḥ" in Bahuvrīhi.',
+  },
+  {
+    id: 'ext-39-bahudhanah',
+    isCoreExhibition: false,
+    purvapada: 'बहु',
+    purvapadaTranslit: 'bahu',
+    purvapadaMeaning: 'Much / Great (बहुत)',
+    uttarapada: 'धनम्',
+    uttarapadaTranslit: 'dhanam',
+    uttarapadaMeaning: 'Wealth (धन)',
+    samastapada: 'बहुधनः',
+    samastapadaTranslit: 'bahudhanaḥ',
+    categoryId: 'bahuvrihi',
+    samasTypeSanskrit: 'बहुव्रीहि समास',
+    samasSubtypeSanskrit: 'समानाधिकरण बहुव्रीहि',
+    samasTypeEnglish: 'Bahuvrīhi Samāsa (Exocentric / Possessive)',
+    vigraha: 'बहु धनं यस्य सः',
+    vigrahaTranslit: 'bahu dhanaṃ yasya saḥ',
+    hindiMeaning: 'बहुत धन है जिसके पास वह (धनवान व्यक्ति)।',
+    englishMeaning: 'A person who possesses great wealth.',
+    grammaticalExplanationHindi:
+      'यहाँ समस्त पद धन का नहीं बल्कि धन के स्वामी (धनवान व्यक्ति) का बोध कराता है, इसलिए पुल्लिंग एकवचन में "बहुधनः" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'Instead of signifying wealth itself, "bahudhanaḥ" functions as an adjective describing a wealthy person ("one who has much wealth").',
+  },
+  {
+    id: 'ext-40-prativarsham',
+    isCoreExhibition: false,
+    purvapada: 'प्रति',
+    purvapadaTranslit: 'prati',
+    purvapadaMeaning: 'Every / Each (प्रत्येक - अव्यय)',
+    uttarapada: 'वर्षम्',
+    uttarapadaTranslit: 'varṣam',
+    uttarapadaMeaning: 'Year (वर्ष)',
+    samastapada: 'प्रतिवर्षम्',
+    samastapadaTranslit: 'prativarṣam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'वीप्सा-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'वर्षं वर्षं प्रति',
+    vigrahaTranslit: 'varṣaṃ varṣaṃ prati',
+    hindiMeaning: 'प्रत्येक वर्ष (हर साल)।',
+    englishMeaning: 'Every year / Annually.',
+    grammaticalExplanationHindi:
+      'वीप्सा (प्रत्येक / पुनरावृत्ति) के अर्थ में पूर्वपद "प्रति" अव्यय का प्रयोग होकर नपुंसकलिंग एकवचन अव्यय रूप "प्रतिवर्षम्" बना है।',
+    grammaticalExplanationEnglish:
+      'The prefix "prati" denotes repetition or distribution ("varṣaṃ varṣam" = year by year), forming the indeclinable adverb "prativarṣam".',
+  },
+  {
+    id: 'ext-41-yathakalam',
+    isCoreExhibition: false,
+    purvapada: 'यथा',
+    purvapadaTranslit: 'yathā',
+    purvapadaMeaning: 'According to (अनुसार - अव्यय)',
+    uttarapada: 'कालम्',
+    uttarapadaTranslit: 'kālam',
+    uttarapadaMeaning: 'Time (समय)',
+    samastapada: 'यथाकालम्',
+    samastapadaTranslit: 'yathākālam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'अनतिक्रम्य-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'कालम् अनतिक्रम्य',
+    vigrahaTranslit: 'kālam anatikramya',
+    hindiMeaning: 'समय के अनुसार अथवा उचित समय पर।',
+    englishMeaning: 'According to the proper time / In due time.',
+    grammaticalExplanationHindi:
+      'समय का अतिक्रमण न करने ("अनतिक्रम्य") के अर्थ में "यथा" अव्यय पूर्वपद बनकर "यथाकालम्" अव्ययीभाव समस्त पद निर्मित करता है।',
+    grammaticalExplanationEnglish:
+      'The prefix "yathā" signifies "without exceeding" (kālam anatikramya), resulting in the invariant adverb "yathākālam" (in due time).',
+  },
+  {
+    id: 'ext-42-amaranam',
+    isCoreExhibition: false,
+    purvapada: 'आ',
+    purvapadaTranslit: 'ā',
+    purvapadaMeaning: 'Until (पर्यन्त - अव्यय)',
+    uttarapada: 'मरणम्',
+    uttarapadaTranslit: 'maraṇam',
+    uttarapadaMeaning: 'Death (मृत्यु)',
+    samastapada: 'आमरणम्',
+    samastapadaTranslit: 'āmaraṇam',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'अवधि-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'मरणपर्यन्तम्',
+    vigrahaTranslit: 'maraṇaparyantam',
+    hindiMeaning: 'मृत्यु तक।',
+    englishMeaning: "Until death / Throughout one's life.",
+    grammaticalExplanationHindi:
+      'मर्यादा अथवा अवधि (तक) के अर्थ में "आ" अव्यय का पूर्वपद के रूप में प्रयोग होकर "आमरणम्" अव्ययीभाव समास बनता है।',
+    grammaticalExplanationEnglish:
+      'The indeclinable prefix "ā-" expresses limit or boundary ("maraṇaparyantam" = until death), forming "āmaraṇam".',
+  },
+  {
+    id: 'ext-43-saparivaram',
+    isCoreExhibition: false,
+    purvapada: 'स',
+    purvapadaTranslit: 'sa',
+    purvapadaMeaning: 'With (सहित - अव्यय)',
+    uttarapada: 'परिवारम्',
+    uttarapadaTranslit: 'parivāram',
+    uttarapadaMeaning: 'Family (परिवार)',
+    samastapada: 'सपरिवारम्',
+    samastapadaTranslit: 'saparivāram',
+    categoryId: 'avyayibhava',
+    samasTypeSanskrit: 'अव्ययीभाव समास',
+    samasSubtypeSanskrit: 'सहित-अर्थक अव्ययीभाव',
+    samasTypeEnglish: 'Avyayībhāva Samāsa (Adverbial Compound)',
+    vigraha: 'परिवारेण सहितम्',
+    vigrahaTranslit: 'parivāreṇa sahitam',
+    hindiMeaning: 'परिवार सहित।',
+    englishMeaning: 'Together with the family.',
+    grammaticalExplanationHindi:
+      'सह (सहित) के अर्थ में "सह" को "स" आदेश होकर उत्तरपद "परिवारम्" के साथ मिलकर "सपरिवारम्" अव्यय पद बनता है।',
+    grammaticalExplanationEnglish:
+      'The particle "saha" (with) takes the form "sa-" in compounding, indicating accompaniment ("parivāreṇa sahitam").',
+  },
+  {
+    id: 'ext-44-tribhuvanam',
+    isCoreExhibition: false,
+    purvapada: 'त्रि',
+    purvapadaTranslit: 'tri',
+    purvapadaMeaning: 'Three (तीन)',
+    uttarapada: 'भुवनम्',
+    uttarapadaTranslit: 'bhuvanam',
+    uttarapadaMeaning: 'Worlds (लोक / भुवन)',
+    samastapada: 'त्रिभुवनम्',
+    samastapadaTranslit: 'tribhuvanam',
+    categoryId: 'dvigu',
+    samasTypeSanskrit: 'द्विगु समास',
+    samasSubtypeSanskrit: 'समाहार द्विगु',
+    samasTypeEnglish: 'Dvigu Samāsa (Numeral Collective Compound)',
+    vigraha: 'त्रयाणां भुवनानां समाहारः',
+    vigrahaTranslit: 'trayāṇāṃ bhuvanānāṃ samāhāraḥ',
+    hindiMeaning: 'तीनों लोकों का समूह।',
+    englishMeaning: 'The collection of the three worlds.',
+    grammaticalExplanationHindi:
+      'संख्यापूर्वो द्विगुः सूत्रानुसार पूर्वपद "त्रि" संख्यावाचक है तथा समस्त पद तीनों भुवनों के समाहार (समूह) का बोध कराता है, अतः नपुंसकलिंग एकवचन में "त्रिभुवनम्" बनता है।',
+    grammaticalExplanationEnglish:
+      'By the rule "saṅkhyāpūrvo dviguḥ", the initial numeral "tri" combines with "bhuvanam" to denote an aggregate of three worlds in the neuter singular.',
+  },
+  {
+    id: 'ext-45-navaratram',
+    isCoreExhibition: false,
+    purvapada: 'नव',
+    purvapadaTranslit: 'nava',
+    purvapadaMeaning: 'Nine (नौ)',
+    uttarapada: 'रात्रम्',
+    uttarapadaTranslit: 'rātram',
+    uttarapadaMeaning: 'Nights (रातें / रात्रियाँ)',
+    samastapada: 'नवरात्रम्',
+    samastapadaTranslit: 'navarātram',
+    categoryId: 'dvigu',
+    samasTypeSanskrit: 'द्विगु समास',
+    samasSubtypeSanskrit: 'समाहार द्विगु',
+    samasTypeEnglish: 'Dvigu Samāsa (Numeral Collective Compound)',
+    vigraha: 'नवानां रात्रीणां समाहारः',
+    vigrahaTranslit: 'navānāṃ rātrīṇāṃ samāhāraḥ',
+    hindiMeaning: 'नौ रातों का समूह (नवरात्रि)।',
+    englishMeaning: 'A period of nine nights.',
+    grammaticalExplanationHindi:
+      'पूर्वपद "नव" संख्यावाचक है तथा उत्तरपद "रात्रि" को समाहार द्विगु में अकारान्त आदेश होकर नपुंसकलिंग एकवचन "नवरात्रम्" रूप सिद्ध होता है।',
+    grammaticalExplanationEnglish:
+      'The initial numeral "nava" (nine) governs the collection of nights, taking the suffix "-am" in the collective neuter singular "navarātram".',
+  },
+  {
+    id: 'ext-46-pancangam',
+    isCoreExhibition: false,
+    purvapada: 'पञ्च',
+    purvapadaTranslit: 'pañca',
+    purvapadaMeaning: 'Five (पाँच)',
+    uttarapada: 'अङ्गम्',
+    uttarapadaTranslit: 'aṅgam',
+    uttarapadaMeaning: 'Limbs / Elements (अंग)',
+    samastapada: 'पञ्चाङ्गम्',
+    samastapadaTranslit: 'pañcāṅgam',
+    categoryId: 'dvigu',
+    samasTypeSanskrit: 'द्विगु समास',
+    samasSubtypeSanskrit: 'समाहार द्विगु',
+    samasTypeEnglish: 'Dvigu Samāsa (Numeral Collective Compound)',
+    vigraha: 'पञ्चानाम् अङ्गानां समाहारः',
+    vigrahaTranslit: 'pañcānām aṅgānāṃ samāhāraḥ',
+    hindiMeaning: 'पाँच अंगों का समूह (तिथि, वार, नक्षत्र, योग और करण)।',
+    englishMeaning: 'A system consisting of five elements (the Hindu almanac).',
+    grammaticalExplanationHindi:
+      'पूर्वपद "पञ्च" (संख्या) तथा उत्तरपद "अङ्गम्" के मध्य सवर्ण दीर्घ सन्धि होकर पाँच अंगों के समाहार का बोधक "पञ्चाङ्गम्" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'Numeral "pañca" merges with "aṅgam" via long vowel sandhi to designate the traditional five-limbed astronomical calendar in the neuter singular.',
+  },
+  {
+    id: 'ext-47-saptarshayah',
+    isCoreExhibition: false,
+    purvapada: 'सप्त',
+    purvapadaTranslit: 'sapta',
+    purvapadaMeaning: 'Seven (सात)',
+    uttarapada: 'ऋषयः',
+    uttarapadaTranslit: 'ṛṣayaḥ',
+    uttarapadaMeaning: 'Sages (ऋषिगण)',
+    samastapada: 'सप्तर्षयः',
+    samastapadaTranslit: 'saptarṣayaḥ',
+    categoryId: 'dvigu',
+    samasTypeSanskrit: 'द्विगु समास',
+    samasSubtypeSanskrit: 'संख्यापूर्वपद द्विगु',
+    samasTypeEnglish: 'Dvigu Samāsa (Numeral Compound)',
+    vigraha: 'सप्त ऋषयः',
+    vigrahaTranslit: 'sapta ṛṣayaḥ',
+    hindiMeaning: 'सात ऋषियों का समूह (सप्तर्षि)।',
+    englishMeaning: 'The group of seven great sages.',
+    grammaticalExplanationHindi:
+      'पूर्वपद संख्यावाचक "सप्त" है तथा "सप्त" + "ऋषयः" में गुण सन्धि (अ + ऋ = अर्) होकर प्रथमा बहुवचन में "सप्तर्षयः" रूप बनता है।',
+    grammaticalExplanationEnglish:
+      'The numeral "sapta" compounds with plural "ṛṣayaḥ" via guṇa sandhi (a + ṛ = ar) to refer to the revered group of seven sages.',
+  },
+];
+
+export interface SanskritFunFact {
+  id: string;
+  title: string;
+  fact: string;
+  sanskritQuote: string;
+  quoteMeaning: string;
+}
+
+export const SANSKRIT_FUN_FACTS: SanskritFunFact[] = [
+  {
+    id: 'fact-1',
+    title: 'अष्टाध्यायी एवं पाणिनीय सूत्र (Algorithmic Precision)',
+    fact: 'Maharshi Pāṇini codified all of Sanskrit compounding (समास) in the 2nd Adhyāya of the Aṣṭādhyāyī using ultra-compact algebraic rules that inspired modern computer programming language grammars (Backus-Naur Form).',
+    sanskritQuote: 'समर्थः पदविधिः (अष्टाध्यायी २.१.१)',
+    quoteMeaning: 'Grammatical operations combining words apply only when the words are semantically connected.',
+  },
+  {
+    id: 'fact-2',
+    title: 'संक्षिप्तिकरण की कला (The Art of Conciseness)',
+    fact: 'The word "समास" (Samāsa) is itself formed from सम् + अस् + घञ्, literally meaning "sitting together" or "condensation". Samāsa allows poets to express an entire clause in a single rhythmic word.',
+    sanskritQuote: 'समसनं समासः — अनेकपदानाम् एकपदीभवनम्',
+    quoteMeaning: 'Samāsa is the condensation of multiple inflected words into a single unified word.',
+  },
+  {
+    id: 'fact-3',
+    title: 'पद-प्रधानता का गणित (Fourfold Dominance Symmetry)',
+    fact: 'Sanskrit Samas classifies compounds with mathematical symmetry based on which word holds primary meaning: First word (अव्ययीभाव), Second word (तत्पुरुष/कर्मधारय), Both words (द्वन्द्व), or an External third referent (बहुव्रीहि).',
+    sanskritQuote: 'पूर्वपदार्थप्रधानोऽव्ययीभावः, उत्तरपदार्थप्रधानस्तत्पुरुषः',
+    quoteMeaning: 'Avyayībhāva prioritizes the first word; Tatpuruṣa prioritizes the second word.',
+  },
+  {
+    id: 'fact-4',
+    title: 'विभक्ति से अर्थ परिवर्तन (Same Words, Different Samas!)',
+    fact: 'In Sanskrit, changing just the gender ending of a compound can shift its Samas type! "पीताम्बरम्" (neuter) means "yellow cloth" (कर्मधारय), whereas "पीताम्बरः" (masculine) means "He whose cloth is yellow — Lord Vishnu" (बहुव्रीहि).',
+    sanskritQuote: 'पीतम् अम्बरम् = पीताम्बरम् (कर्मधारय) · पीताम्बरः (बहुव्रीहि)',
+    quoteMeaning: 'Grammatical gender inflection distinguishes an internal description from an external title.',
+  },
+];
